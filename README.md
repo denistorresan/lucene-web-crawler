@@ -1,2 +1,23 @@
-# lucene-web-crawler
-Lucene Web Crawler
+# Lucene Web Crawler
+
+Web search engine using Apache Lucene and Java
+
+Thank you @tchanda90 which the initial code was taken from https://github.com/tchanda90/lucene-web-crawler
+
+# Build
+
+```
+mvn package
+```
+
+# Run
+
+```
+java -jar target\lucene-web-search-1.0-jar-with-dependencies.jar [seed URL] [crawl depth] [path to index folder] [query]
+```
+
+ex:
+
+```
+java -jar target\lucene-web-search-1.0-jar-with-dependencies.jar https://www.example.com 1 .\data World
+```
