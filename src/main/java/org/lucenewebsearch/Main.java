@@ -1,10 +1,12 @@
 package org.lucenewebsearch;
 
+import org.apache.lucene.search.TopDocs;
+
 public class Main 
 {
     public static void main( String[] args )
     {
-    	if (!args[0].equals("") && !args[1].equals("") && !args[2].equals("") && !args[3].equals("")) {
+    	if (args != null && args.length == 4 && !args[0].equals("") && !args[1].equals("") && !args[2].equals("") && !args[3].equals("")) {
 			
 			// Get seed url, crawl depth, index path, and query string from cmd line arguments
 			String seedUrl = args[0];
@@ -17,11 +19,12 @@ public class Main
 			Crawler crawler = new Crawler();
 			crawler.startCrawl(seedUrl, crawlDepth, indexPath);
 			
-			SearchFiles.search(indexPath, query);
+			//Search and display results
+			TopDocs results = SearchFiles.search(indexPath, query, true);
 		}
 		else {
 			System.out.print("Invalid command line arguments. Must be run as follows:\n");
-			System.out.print("java -jar IR P02.jar [seed URL] [crawl depth] [path to index folder] [query]\n");
+			System.out.print("java -jar lucene-web-search-1.0-jar-with-dependencies.jar [seed URL] [crawl depth] [path to index folder] [query]\n");
 			return;
 		}
     }

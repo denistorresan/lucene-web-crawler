@@ -22,11 +22,16 @@ import org.apache.lucene.store.FSDirectory;
 
 public class SearchFiles {
 	
-	public static void search(String indexPath, String query) {
-		
+	public static TopDocs search(String indexPath, String query) {
+		return search(indexPath, query, false);
+	}
+	
+	public static TopDocs search(String indexPath, String query, boolean displayResults) {
 		String[] fields = {"title", "contents"};
 
 		final int maxHitsDisplay = 10;	// Maximum number of result documents to display
+
+		TopDocs results = null;
 
 		try {
 			// Initialize the index reader
@@ -41,48 +46,45 @@ public class SearchFiles {
 			// using the same parser instance. 
 			MultiFieldQueryParser mfparser = new MultiFieldQueryParser(fields, analyzer);
 
-			BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
-
 			// Parse the query and store it in a Query Object
 			Query q = mfparser.parse(query);
 			
 			System.out.println("\nSearching For: " + query + "\n");
 			
 			// Call the method that executes the search
-			executeSearch(in, searcher, q, maxHitsDisplay);
+			results = searcher.search(q, maxHitsDisplay);
+			
+			if( displayResults ) {
+				displayResults(searcher, results);
+			}
 
 			// Close the IndexReader
 			reader.close();
-			
-		} catch(Exception e) {
+		} 
+		catch(Exception e) {
 			System.out.println("Error while initializing index reader " + e);
 		}
-				
+		
+		return results;
 	}
 	
-	public static void executeSearch(BufferedReader in, IndexSearcher searcher, Query query,
-			int maxHitsDisplay) throws IOException {
-		
+	
+	/**
+	 * debug
+	*/
+	public static void displayResults(IndexSearcher searcher, TopDocs results) throws IOException {
 		Date startDate = new Date();
 		
 		// Collect hits
-		TopDocs results = searcher.search(query, maxHitsDisplay);
 		ScoreDoc[] hits = results.scoreDocs;
 		int numTotalHits = Math.toIntExact(results.totalHits);
-		
-		// Get the lesser value between maximum hits to display and 
-		// the actual number of hits. If hits are more than max hits 
-		// to display, iterate to maxHitsDisplay. Else iterate to
-		// the number of hits
-		int end = Math.min(maxHitsDisplay, numTotalHits);
-		
+
 		Date endDate = new Date();
 		
 		System.out.println("Total " + numTotalHits + " Matching Documents Found in " + ((endDate.getTime() - startDate.getTime()) / 1000.0) + " Seconds");
-		System.out.println("Showing Top " + end + "\n");
 		
 		// Iterate over the hits array
-		for (int i = 0; i < end; i++) {
+		for (int i = 0; i < numTotalHits; i++) {
 
 			Document doc = searcher.doc(hits[i].doc);
 
